@@ -6,6 +6,8 @@ function writeToConsole(props) {
     console.log(msg)
 }
 
+
+
 function openFile(props) {
     let filename = props.name || null
 
@@ -115,6 +117,12 @@ function OBF_Run(code) {
     }
 }
 
+function OBF_pushfunc(n, f) {
+    funcs[n] = f
+}
+
 module.exports.runObf = OBF_Run
 
 module.exports.compileObf = OBF_CompileAST
+
+module.exports.exportObf = OBF_pushfunc
