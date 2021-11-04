@@ -1,4 +1,4 @@
-# OBF - Owen's brainf**k (but readable)
+# OBF - brainf**k (but readable... so like... unbrainf\**k)
 
 OBF was originally a programming language thought of by my friend.
 
