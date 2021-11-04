@@ -1,0 +1,5 @@
+<<> oBF example
+
+writeToConsole {
+    message: "hello!"
+};
