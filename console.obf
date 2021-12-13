@@ -2,4 +2,4 @@
 
 writeToConsole {
     message: "hello!"
-};
+} -

@@ -37,6 +37,8 @@ function OBF_CompileAST(code) {
     let place2 = "";
     let state = 0;
     let cfunc = "";
+    let tmp_props = {}
+
 
     for (let i = 0 ; i < code.length ; ++i) {
         /// obf
@@ -50,14 +52,58 @@ function OBF_CompileAST(code) {
         } else if (code[i] == '"' || code[i] == "'" && state == 1288) {
           state = 900;  
         } else if (code[i] == '}' && state == 900) {
-            break;  
+            tmp_props[cfunc] = place;
+            place = ""
+            state = 0;
         } else {
             place = place + code[i]; /* keep adding chars to buffer */
         }
     }
 
+
+    // console.log(tmp_props)
     let properties = {}
 
+    Object.entries(tmp_props).forEach(entry => {
+        const [key, value] = entry;
+        
+        let head = ""; /* name of property */
+    let val = ""; /* value of property */
+    // place = ""
+    let propstate = -1;
+    // console.log(value.trim())
+    properties[key.trim()] = {}
+    for (let i = 0; i < value.length ; ++ i) {
+        
+        if (value[i] == ':' && propstate == -1) {
+            head = place2;
+            place2 = "";
+            propstate = 1;
+        } else if (value[i] == ',' || value[i] == ':' && propstate == 1) {
+            val = place2;
+
+            properties[key.trim()][head] = val;
+
+            head = "";
+            val = "";
+            place2 = "";
+
+            propstate = -1;
+            continue;
+        }
+        else {
+            place2 = place2 + value[i];
+        }
+    }
+
+    if (place2.length > 0) {
+        properties[key.trim()][head.trim()] = place2.trim()
+        place2 = "";
+    }
+
+
+    });
+    
     let head = ""; /* name of property */
     let val = ""; /* value of property */
 
@@ -88,33 +134,30 @@ function OBF_CompileAST(code) {
         properties[head.trim()] = place2.trim()
         place2 = "";
     }
-    Object.entries(properties).forEach(entry => {
-        const [key, value] = entry;
-        delete properties[key]
-        properties[key.trim()] = value.trim()
-    });
-
+    
     // console.log(properties)
-    return {
-        func: {
-            name: cfunc.trim(),
-            properties: properties
-        }
-    };
+    return properties;
 }
 
 function OBF_Run(code) {
     let ast = OBF_CompileAST(code);
 
-    let name = ast.func.name
+    Object.entries(ast).forEach(entry => {
+        const [k,v] = entry
+        // console.log("find func " + k + " with props " + v)
+        // console.log
+        if (funcs[k] != undefined) {
+            funcs[k](v)
+        } else {
+            console.warn("OBF: there's no function in memory that registers as " + k + ".")
+        }
+    })
 
-    let props = ast.func.properties
-
-    if (funcs[name] != undefined) {
-        funcs[name](props)
-    } else {
-        console.warn("OBF: there's no function in memory that registers as " + name + ".")
-    }
+    // if (funcs[name] != undefined) {
+    //     funcs[name](props)
+    // } else {
+    //     console.warn("OBF: there's no function in memory that registers as " + name + ".")
+    // }
 }
 
 function OBF_pushfunc(n, f) {
