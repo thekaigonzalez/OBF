@@ -1,5 +1,5 @@
 const obf = require("./obf")
 
 
-
-obf.runObf("writeToConsole { message: 'hello world' }")
+console.log(obf.compileObf)
+obf.runObf("writeToConsole { message: 'hello world', message2: 'helllo' }")

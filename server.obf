@@ -1,0 +1,6 @@
+init_server {
+    port: 2223 :
+    code: console.log(`hello`)
+}
+
+listen {}

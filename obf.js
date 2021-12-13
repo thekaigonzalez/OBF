@@ -39,13 +39,14 @@ function OBF_CompileAST(code) {
     let cfunc = "";
     let tmp_props = {}
 
-
+    place = ""
     for (let i = 0 ; i < code.length ; ++i) {
         /// obf
 
         if (code[i] == '{') {
             state = 900;
             cfunc = place;
+            // console.log("pushing name " + cfunc)
             place = "";
         } else if (code[i] == '"' || code[i] == "'" && state == 900) {
           state = 1288  
@@ -56,18 +57,21 @@ function OBF_CompileAST(code) {
             place = ""
             state = 0;
         } else {
+            // console.log("adding " + place)
             place = place + code[i]; /* keep adding chars to buffer */
         }
     }
+    // console.log(cfunc)
+    // console.log(tmp_props)
 
 
     // console.log(tmp_props)
     let properties = {}
 
     Object.entries(tmp_props).forEach(entry => {
-        const [key, value] = entry;
+    const [key, value] = entry;
         
-        let head = ""; /* name of property */
+    let head = ""; /* name of property */
     let val = ""; /* value of property */
     // place = ""
     let propstate = -1;
@@ -82,7 +86,7 @@ function OBF_CompileAST(code) {
         } else if (value[i] == ',' || value[i] == ':' && propstate == 1) {
             val = place2;
 
-            properties[key.trim()][head] = val;
+            properties[key.trim()][head.trim()] = val.trim();
 
             head = "";
             val = "";
@@ -116,7 +120,7 @@ function OBF_CompileAST(code) {
         } else if (place[i] == ',' || place[i] == ':' && propstate == 1) {
             val = place2;
 
-            properties[head] = val;
+            properties[head.trim()] = val.trim();
 
             head = "";
             val = "";
@@ -130,11 +134,17 @@ function OBF_CompileAST(code) {
         }
     }
 
-    if (place2.length > 0) {
-        properties[head.trim()] = place2.trim()
-        place2 = "";
-    }
-    
+    // if (place2.length > 0) {
+    //     properties[head.trim()] = place2.trim()
+    //     place2 = "";
+    // }
+    Object.entries(properties).forEach(entry => {
+        const [key, value] = entry;
+        delete properties[key]
+        properties[key.trim()] = (typeof value === 'string') ? value.trim() : value
+
+        // console.log(value)
+    });
     // console.log(properties)
     return properties;
 }
@@ -143,11 +153,14 @@ function OBF_Run(code) {
     let ast = OBF_CompileAST(code);
 
     Object.entries(ast).forEach(entry => {
+        console.log(entry)
         const [k,v] = entry
+        console.log(v )
+        console.log("name ^")
         // console.log("find func " + k + " with props " + v)
         // console.log
-        if (funcs[k] != undefined) {
-            funcs[k](v)
+        if (funcs[k.trim()] != undefined) {
+            funcs[k.trim()](v)
         } else {
             console.warn("OBF: there's no function in memory that registers as " + k + ".")
         }
