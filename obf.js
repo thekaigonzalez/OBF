@@ -153,10 +153,10 @@ function OBF_Run(code) {
     let ast = OBF_CompileAST(code);
 
     Object.entries(ast).forEach(entry => {
-        console.log(entry)
+        // console.log(entry)
         const [k,v] = entry
-        console.log(v )
-        console.log("name ^")
+        // console.log(v )
+        // console.log("name ^")
         // console.log("find func " + k + " with props " + v)
         // console.log
         if (funcs[k.trim()] != undefined) {

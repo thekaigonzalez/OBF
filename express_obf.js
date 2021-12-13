@@ -33,7 +33,13 @@ obf.exportObf("init_server", function(properties) {
     const { stringify } = require('querystring');    
 })
 
-obf.exportObf("")
+obf.exportObf("serve_at", function(pr) {
+    let addr = pr.address || null
+
+    app.get(addr, (req, res) => {
+        eval(pr.code || "")
+    })
+})
 
 obf.exportObf("listen", function(props) {
     
